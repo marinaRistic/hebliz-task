@@ -30,7 +30,7 @@ export class Service {
        
         try{
             //get data from fbi api 
-            const allData = await this.fbiAPIService.getWantedList(name); //add name;
+            const fbiData = await this.fbiAPIService.getWantedList(name); //add name;
 
             //check phone validity
             const valid = isValidPhoneNumber(phoneNumber);
@@ -41,11 +41,14 @@ export class Service {
             if (valid) {
                 country = asYouType.getNumber()?.country;
             }
+            //if phone number is not valid, it can return an error
+            //  throw new Error(`Invalid phone number entered.`);
+
             if (!country) {
                 //get country code from ip address
                 if(ip) {
                     const ipInfo = await this.geoipfyService.getIpAddressInfo(ip);
-                    country = ipInfo.location.country;
+                    country = ipInfo?.location.country;
                 }
             }
 
@@ -59,9 +62,9 @@ export class Service {
  
 
             let pdf: jsPDF;
-            if (allData.items && allData.items.length > 0) {
+            if (fbiData && fbiData.items && fbiData.items.length > 0) {
                 //use only data ids for report
-                const data = allData.items.map((el: any) => el.uid);
+                const data = fbiData.items.map((el: any) => el.uid);
                 pdf = await this.createPDF(data, name, phoneNumber, country, valid)     
                
             } else {
@@ -72,8 +75,8 @@ export class Service {
             return pdf.output();
 
         } catch(error) {
-            console.log("error in checker function");
-            console.log(error);
+            // console.log("error in checker function");
+            // console.log(error);
             throw new Error("Error occured while checking requested data.");
         }    
     }   
@@ -105,6 +108,7 @@ export class Service {
         if (data.length == 0) {
             doc.text("No cases found for requested search parameters:", 20, margin);
         }
+        
         else {
             doc.text("Case IDs found for requested title.", 20, margin);
             margin+=8

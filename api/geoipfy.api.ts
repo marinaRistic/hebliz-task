@@ -11,9 +11,6 @@ export class GeoIpfyService {
         let response;
         try{
             response = await axios.get(GeoIpfyService.geoipfyEndpointUrl, {
-                // headers: {
-                //     'User-Agent': 'request'
-                // },
                 params: {
                     'apiKey': GeoIpfyService.apiKey,
                     'ipAddress': ipAddress
